@@ -4,13 +4,22 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 
+import com.jpa.test.entity.TestEntity;
 import com.jpa.test.repository.TestJpaRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,10 +38,33 @@ public class JpaTest {
 
     @Test
     public void testJpa() {
-        Optional<com.jpa.test.entity.JpaTest> byId = testJpaRepository.findById(6L);
-        log.info("查询内容为{}", byId.get());
+        Optional<TestEntity> byId = testJpaRepository.findById(6L);
+        log.info("通过id查找{}", byId.get());
         long count = testJpaRepository.count();
-        log.info("查询内容为{}", count);
+        log.info("计算总数{}", count);
+    }
+
+    /**
+     * Example是由查询参数(Probe)和查询条件(ExampleMatcher)组成的
+     * Probe是包含查询参数的实体
+     * Example含有查询条件信息
+     *
+     * 注意Example不支持条件分组查询例如 AND a = ? AND (b = ? OR c = ?)
+     */
+    @Test
+    public void testExample() {
+        TestEntity testEntity = new TestEntity();
+        testEntity.setLastName("朱");
+        ExampleMatcher lastName = ExampleMatcher.matching().withMatcher("lastName", GenericPropertyMatchers.exact());
+        Example<TestEntity> of = Example.of(testEntity, lastName);
+        List<TestEntity> all = testJpaRepository.findAll(of);
+        log.info("查询内容为{}", all);
+    }
+
+    @Test
+    public void testPageable() {
+        Page<TestEntity> all = testJpaRepository.findAll(PageRequest.of(0, 2, Sort.by(Direction.DESC, "age")));
+        log.info("查询内容为{}", all.get().collect(Collectors.toList()));
     }
 
     /**
@@ -40,11 +72,11 @@ public class JpaTest {
      */
     @Test
     public void testByLastName() {
-        List<com.jpa.test.entity.JpaTest> byLastName = testJpaRepository.findByLastName("朱");
+        List<TestEntity> byLastName = testJpaRepository.findByLastName("朱");
         log.info("查询内容为{}", byLastName);
-        List<com.jpa.test.entity.JpaTest> byLastNameIs = testJpaRepository.findByLastNameIs("朱");
+        List<TestEntity> byLastNameIs = testJpaRepository.findByLastNameIs("朱");
         log.info("查询内容为{}", byLastNameIs);
-        List<com.jpa.test.entity.JpaTest> byLastNameEquals = testJpaRepository.findByLastNameEquals("朱");
+        List<TestEntity> byLastNameEquals = testJpaRepository.findByLastNameEquals("朱");
         log.info("查询内容为{}", byLastNameEquals);
     }
 
@@ -53,7 +85,7 @@ public class JpaTest {
      */
     @Test
     public void testAnd() {
-        com.jpa.test.entity.JpaTest byLastNameAndFirstName = testJpaRepository.findByLastNameAndFirstName("朱", "元璋");
+        TestEntity byLastNameAndFirstName = testJpaRepository.findByLastNameAndFirstName("朱", "元璋");
         log.info("查询内容为{}", byLastNameAndFirstName);
     }
 
@@ -62,7 +94,7 @@ public class JpaTest {
      */
     @Test
     public void testOr() {
-        List<com.jpa.test.entity.JpaTest> byLastNameOrFirstName = testJpaRepository.findByLastNameOrFirstName("张", "桃红");
+        List<TestEntity> byLastNameOrFirstName = testJpaRepository.findByLastNameOrFirstName("张", "桃红");
         log.info("查询内容为{}", byLastNameOrFirstName);
     }
 
@@ -71,7 +103,7 @@ public class JpaTest {
      */
     @Test
     public void testBetween() {
-        List<com.jpa.test.entity.JpaTest> byAgeBetween = testJpaRepository.findByAgeBetween(23, 25);
+        List<TestEntity> byAgeBetween = testJpaRepository.findByAgeBetween(23, 25);
         log.info("查询内容为{}", byAgeBetween);
     }
 
@@ -80,7 +112,7 @@ public class JpaTest {
      */
     @Test
     public void testLteAndGte() {
-        List<com.jpa.test.entity.JpaTest> byAgeGreaterThanEqualAndAgeLessThanEqual = testJpaRepository
+        List<TestEntity> byAgeGreaterThanEqualAndAgeLessThanEqual = testJpaRepository
                 .findByAgeGreaterThanEqualAndAgeLessThanEqual(23, 25);
         log.info("查询内容为{}", byAgeGreaterThanEqualAndAgeLessThanEqual);
     }
@@ -90,7 +122,7 @@ public class JpaTest {
      */
     @Test
     public void testIsNull() {
-        List<com.jpa.test.entity.JpaTest> byEmailIsNull = testJpaRepository.findByEmailIsNull();
+        List<TestEntity> byEmailIsNull = testJpaRepository.findByEmailIsNull();
         log.info("查询内容为{}", byEmailIsNull);
     }
 
@@ -101,7 +133,7 @@ public class JpaTest {
     public void testAfterAndBefore() {
         Date after = new DateTime(2020, 2, 20, 11, 28).toDate();
         Date before = new DateTime(2020, 2, 22, 11, 28).toDate();
-        List<com.jpa.test.entity.JpaTest> byBirthdayAfterAndBirthdayBefore = testJpaRepository
+        List<TestEntity> byBirthdayAfterAndBirthdayBefore = testJpaRepository
                 .findByBirthdayAfterAndBirthdayBefore(after, before);
         log.info("查询内容为{}", byBirthdayAfterAndBirthdayBefore);
     }
@@ -111,7 +143,7 @@ public class JpaTest {
      */
     @Test
     public void testIsNotNull() {
-        List<com.jpa.test.entity.JpaTest> byAgeIsNotNull = testJpaRepository.findByAgeIsNotNull();
+        List<TestEntity> byAgeIsNotNull = testJpaRepository.findByAgeIsNotNull();
         log.info("查询内容为{}", byAgeIsNotNull);
     }
 
@@ -124,13 +156,13 @@ public class JpaTest {
      */
     @Test
     public void testLike() {
-        List<com.jpa.test.entity.JpaTest> byFirstNameLike = testJpaRepository.findByFirstNameLike("丹");
+        List<TestEntity> byFirstNameLike = testJpaRepository.findByFirstNameLike("丹");
         log.info("查询内容为{}", byFirstNameLike);
-        List<com.jpa.test.entity.JpaTest> byFirstNameStartingWith = testJpaRepository.findByFirstNameStartingWith("斯");
+        List<TestEntity> byFirstNameStartingWith = testJpaRepository.findByFirstNameStartingWith("斯");
         log.info("查询内容为{}", byFirstNameStartingWith);
-        List<com.jpa.test.entity.JpaTest> byFirstNameEndingWith = testJpaRepository.findByFirstNameEndingWith("妮");
+        List<TestEntity> byFirstNameEndingWith = testJpaRepository.findByFirstNameEndingWith("妮");
         log.info("查询内容为{}", byFirstNameEndingWith);
-        List<com.jpa.test.entity.JpaTest> byFirstNameContaining = testJpaRepository.findByFirstNameContaining("丹");
+        List<TestEntity> byFirstNameContaining = testJpaRepository.findByFirstNameContaining("丹");
         log.info("查询内容为{}", byFirstNameContaining);
     }
 
@@ -139,7 +171,7 @@ public class JpaTest {
      */
     @Test
     public void testOrder() {
-        List<com.jpa.test.entity.JpaTest> byAgeGreaterThanOrderByAgeDesc = testJpaRepository
+        List<TestEntity> byAgeGreaterThanOrderByAgeDesc = testJpaRepository
                 .findByAgeGreaterThanOrderByAgeDescLastNameDesc(12);
         log.info("查询内容为{}", byAgeGreaterThanOrderByAgeDesc);
     }
@@ -149,7 +181,7 @@ public class JpaTest {
      */
     @Test
     public void testNot() {
-        List<com.jpa.test.entity.JpaTest> byAgeNot = testJpaRepository.findByAgeNot(999);
+        List<TestEntity> byAgeNot = testJpaRepository.findByAgeNot(999);
         log.info("查询内容为{}", byAgeNot);
     }
 
@@ -160,9 +192,9 @@ public class JpaTest {
      */
     @Test
     public void testIn() {
-        List<com.jpa.test.entity.JpaTest> byAgeIn = testJpaRepository.findByAgeIn(Arrays.asList(new Integer[]{25, 32}));
+        List<TestEntity> byAgeIn = testJpaRepository.findByAgeIn(Arrays.asList(new Integer[]{25, 32}));
         log.info("查询内容为{}", byAgeIn);
-        List<com.jpa.test.entity.JpaTest> byAgeNotIn = testJpaRepository.findByAgeNotIn(Arrays.asList(new Integer[]{25, 32}));
+        List<TestEntity> byAgeNotIn = testJpaRepository.findByAgeNotIn(Arrays.asList(new Integer[]{25, 32}));
         log.info("查询内容为{}", byAgeNotIn);
     }
 
@@ -174,9 +206,9 @@ public class JpaTest {
      */
     @Test
     public void testTrue() {
-        List<com.jpa.test.entity.JpaTest> byValidTrue = testJpaRepository.findByValidTrue();
+        List<TestEntity> byValidTrue = testJpaRepository.findByValidTrue();
         log.info("查询内容为{}", byValidTrue);
-        List<com.jpa.test.entity.JpaTest> byValidFalse = testJpaRepository.findByValidFalse();
+        List<TestEntity> byValidFalse = testJpaRepository.findByValidFalse();
         log.info("查询内容为{}", byValidFalse);
     }
 
@@ -186,7 +218,13 @@ public class JpaTest {
      */
     @Test
     public void testIgnoreCase() {
-        com.jpa.test.entity.JpaTest byEmailIgnoreCase = testJpaRepository.findByEmailIgnoreCase("lisidanni@qq.com");
+        TestEntity byEmailIgnoreCase = testJpaRepository.findByEmailIgnoreCase("lisidanni@qq.com");
         log.info("查询内容为{}", byEmailIgnoreCase);
+    }
+
+    @Test
+    public void testLimit() {
+        List<TestEntity> top2BySex = testJpaRepository.findTop2BySex("男");
+        log.info("查询内容为{}", top2BySex);
     }
 }

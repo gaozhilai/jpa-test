@@ -17,8 +17,8 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "jpa_test")
-public class JpaTest {
+@Table(name = "test_entity")
+public class TestEntity {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;

@@ -5,54 +5,56 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.jpa.test.entity.JpaTest;
+import com.jpa.test.entity.TestEntity;
 
 /**
  * No Description
  * @author GaoZhilai
  * @date 2020/2/20 15:11
  */
-public interface TestJpaRepository extends JpaRepository<JpaTest, Long> {
+public interface TestJpaRepository extends JpaRepository<TestEntity, Long> {
 
-    List<JpaTest> findByLastName(String lastName);
+    List<TestEntity> findByLastName(String lastName);
 
-    List<JpaTest> findByLastNameIs(String lastName);
+    List<TestEntity> findByLastNameIs(String lastName);
 
-    List<JpaTest> findByLastNameEquals(String lastName);
+    List<TestEntity> findByLastNameEquals(String lastName);
 
-    JpaTest findByLastNameAndFirstName(String lastName, String firstName);
+    TestEntity findByLastNameAndFirstName(String lastName, String firstName);
 
-    List<JpaTest> findByLastNameOrFirstName(String lastName, String firstName);
+    List<TestEntity> findByLastNameOrFirstName(String lastName, String firstName);
 
-    List<JpaTest> findByAgeBetween(Integer start, Integer end);
+    List<TestEntity> findByAgeBetween(Integer start, Integer end);
 
-    List<JpaTest> findByAgeGreaterThanEqualAndAgeLessThanEqual(Integer start, Integer end);
+    List<TestEntity> findByAgeGreaterThanEqualAndAgeLessThanEqual(Integer start, Integer end);
 
-    List<JpaTest> findByEmailIsNull();
+    List<TestEntity> findByEmailIsNull();
 
-    List<JpaTest> findByBirthdayAfterAndBirthdayBefore(Date after, Date before);
+    List<TestEntity> findByBirthdayAfterAndBirthdayBefore(Date after, Date before);
 
-    List<JpaTest> findByAgeIsNotNull();
+    List<TestEntity> findByAgeIsNotNull();
 
-    List<JpaTest> findByFirstNameLike(String keyword);
+    List<TestEntity> findByFirstNameLike(String keyword);
 
-    List<JpaTest> findByFirstNameStartingWith(String keyword);
+    List<TestEntity> findByFirstNameStartingWith(String keyword);
 
-    List<JpaTest> findByFirstNameEndingWith(String keyword);
+    List<TestEntity> findByFirstNameEndingWith(String keyword);
 
-    List<JpaTest> findByFirstNameContaining(String keyword);
+    List<TestEntity> findByFirstNameContaining(String keyword);
 
-    List<JpaTest> findByAgeGreaterThanOrderByAgeDescLastNameDesc(Integer greater);
+    List<TestEntity> findByAgeGreaterThanOrderByAgeDescLastNameDesc(Integer greater);
 
-    List<JpaTest> findByAgeNot(Integer not);
+    List<TestEntity> findByAgeNot(Integer not);
 
-    List<JpaTest> findByAgeIn(List<Integer> ages);
+    List<TestEntity> findByAgeIn(List<Integer> ages);
 
-    List<JpaTest> findByAgeNotIn(List<Integer> ages);
+    List<TestEntity> findByAgeNotIn(List<Integer> ages);
 
-    List<JpaTest> findByValidTrue();
+    List<TestEntity> findByValidTrue();
 
-    List<JpaTest> findByValidFalse();
+    List<TestEntity> findByValidFalse();
 
-    JpaTest findByEmailIgnoreCase(String email);
+    TestEntity findByEmailIgnoreCase(String email);
+
+    List<TestEntity> findTop2BySex(String sex);
 }
